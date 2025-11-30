@@ -9,4 +9,4 @@ class Document:
         self.tags = tags
 
     def __repr__(self):
-        return f"Document(doc_id={self.doc_id}, title={self.title}, content={self.content}, tags={self.tags})"
+        return f"Document(doc_id={self.id}, title={self.title}, content={self.content}, tags={self.tags})"
