@@ -1,0 +1,21 @@
+# Dockerfile.ollama - Ollama server with pre-pulled model
+
+FROM ollama/ollama:latest
+
+# Optional: choose model via build arg (default: llama3.2)
+ARG OLLAMA_MODEL=llama3.2
+
+# Pre-pull the model at build time.
+# Start server in background, pull model, then stop server.
+RUN ollama serve & \
+    sleep 15 && \
+    ollama pull ${OLLAMA_MODEL} && \
+    pkill ollama || true
+
+# Expose Ollama's default port
+EXPOSE 11434
+
+# ❗ IMPORTANT: DO NOT override CMD with "ollama ..."
+# Let the base image's ENTRYPOINT/CMD handle `ollama serve`.
+# i.e., NO CMD line here.
+# (If you really want to override, you'd do: CMD ["serve"])

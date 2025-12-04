@@ -1,0 +1,24 @@
+# Dockerfile.api - FastAPI backend image
+FROM python:3.11-slim AS base
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Install system deps if needed (kept minimal here)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy project metadata + source
+COPY pyproject.toml ./
+COPY src ./src
+
+# Install app + dependencies
+RUN pip install --no-cache-dir .
+
+# Expose FastAPI port
+EXPOSE 8000
+
+# Run FastAPI with uvicorn
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -112,7 +112,7 @@ class LocalOllamaProvider(BaseLLMProvider):
         """
         self._logger.info("Calling local Ollama model %s at %s", self._model, self._base_url)
         try:
-            with httpx.Client(base_url=self._base_url, timeout=30.0) as client:
+            with httpx.Client(base_url=self._base_url, timeout=60.0) as client:
                 response = client.post(
                     "/api/generate",
                     json={

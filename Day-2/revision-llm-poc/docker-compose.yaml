@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  ollama:
+    build:
+      context: .
+      dockerfile: Dockerfile.ollama
+      args:
+        OLLAMA_MODEL: "llama3.2"   # change here if you want a different model
+    image: revision-ollama:local
+    container_name: revision-ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: revision-llm-api:local
+    container_name: revision-llm-api
+    env_file:
+      - .env   # reuse your existing env (OPENAI_API_KEY, etc.)
+    environment:
+      # Force Ollama usage for this stack
+      USE_OLLAMA: "true"
+      OLLAMA_BASE_URL: "http://ollama:11434"  # 👈 service name, same network
+      OLLAMA_MODEL: "llama3.2"
+    depends_on:
+      - ollama
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    image: revision-llm-ui:local
+    container_name: revision-llm-ui
+    environment:
+      BACKEND_URL: "http://api:8000"   # api service name inside compose network
+    depends_on:
+      - api
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
