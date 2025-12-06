@@ -76,3 +76,12 @@ def explain_topic(
         request.detail_level,
     )
     return service.generate_explanation(request)
+
+
+@app.get("/health", tags=["health"])
+def health() -> dict:
+    """
+    Lightweight health endpoint used by Kubernetes probes.
+    Does NOT call LLMs, just confirms the API process is alive.
+    """
+    return {"status": "ok"}
