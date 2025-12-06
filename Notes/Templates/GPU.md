@@ -1,3 +1,0 @@
-# Hyperstack
-# Paper space
-# RUNPOD
