@@ -1,4 +1,7 @@
-I’ll treat this as **3 days of notes in one place**, with clear sections:
+# Refrence:
+   - https://chatgpt.com/share/6934553e-8458-800f-96e4-9db00b16710c
+
+Treat this as **3 days of notes in one place**, with clear sections:
 
 * **Day 1 – Vector Math & Similarity Foundations**
 * **Day 2 – Embeddings, Vector DBs & Transformer Basics**
