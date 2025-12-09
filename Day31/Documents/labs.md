@@ -1,9 +1,3 @@
-Nice, this is a *very* tight spec — let’s just do it end-to-end in one shot.
-
-I’ll pick a **tiny but realistic** use case and wire **FastAPI + LLM client** on the app side and **Terraform + AWS (S3, RDS, Route 53)** on the infra side, with a dev-only footprint.
-
----
-
 ## 1. Problem Definition – Tiny, Realistic PoC
 
 ### Use Case – “LLM-Powered Release Note Helper for Infra Changes”
@@ -1407,9 +1401,7 @@ Delete any remaining orphans manually to avoid unnecessary charges.
 
 ```
 
----
 
-If you’d like, next iteration we can **swap local FastAPI for EKS + ALB** and wire Route 53 → ALB → EKS → FastAPI to fully exercise the Kubernetes/TLS part, but this PoC keeps the infra surface small while still grounding everything in today’s Terraform/IaC concepts.
 ::contentReference[oaicite:4]{index=4}
 ```
 

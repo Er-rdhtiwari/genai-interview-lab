@@ -1,7 +1,3 @@
-Here we go — let’s treat this as “how a Senior AI / Platform engineer would actually wire Terraform around a GenAI stack.”
-
----
-
 ## 1. Big Picture – Terraform in a GenAI / RAG Stack
 
 Typical GenAI backend on AWS:
@@ -748,5 +744,3 @@ Terraform’s role: make these patterns **codified and repeatable** instead of a
 * Treat the bucket as critical infra and back it up if needed.
 
 ---
-
-If you want, next step we can zoom into **one specific slice**, e.g. “Terraform module for EKS GPU nodegroups for LLM inference” or “Route 53 + ACM + ALB for production API with weighted rollout” and turn it into a mini PoC.
