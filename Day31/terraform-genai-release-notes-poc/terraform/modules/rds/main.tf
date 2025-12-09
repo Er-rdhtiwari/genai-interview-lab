@@ -52,7 +52,10 @@ resource "aws_db_instance" "this" {
   identifier = "${var.name_prefix}-postgres"
 
   engine         = "postgres"
-  engine_version = "16.3"
+  # engine_version = "16.3"
+  # Let AWS pick the default supported engine version for postgres.
+  # If you want a specific version later, set engine_version explicitly
+  # to a value you know is supported in this region.
 
   instance_class    = var.instance_class
   allocated_storage = var.allocated_storage
