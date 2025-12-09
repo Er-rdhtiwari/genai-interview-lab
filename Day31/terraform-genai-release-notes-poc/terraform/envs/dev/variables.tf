@@ -17,3 +17,20 @@ variable "root_domain" {
   description = "Root domain for the hosted zone (e.g. example.com)."
   default     = "example.com"
 }
+variable "db_username" {
+  type        = string
+  description = "Master username for the dev Postgres instance."
+  default     = "llm_user"
+}
+
+variable "db_name" {
+  type        = string
+  description = "Database name for the dev Postgres instance."
+  default     = "llm_poc"
+}
+
+variable "db_password" {
+  type        = string
+  description = "Master password for the dev Postgres instance."
+  sensitive   = true
+}
