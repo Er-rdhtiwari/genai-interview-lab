@@ -209,10 +209,36 @@ __marimo__/
 
 
 .venv/
-envs/
 .env
 __pycache__/
 .pytest_cache/
 .DS_Store
 *.pyc
 .vscode/
+extra-envs/
+
+
+# 👉 Terraform working directory (plugins, modules, etc.)
+.terraform/
+
+# 👉 Terraform state files (contain infra details + sensitive info)
+terraform.tfstate
+terraform.tfstate.*
+
+# 👉 Crash logs (only useful locally for debugging)
+crash.log
+crash.*.log
+
+# 👉 Local variable files (often contain secrets like access keys)
+*.tfvars
+*.tfvars.json
+
+# 👉 Plan output files (binary, environment-specific)
+*.tfplan
+plan.out
+
+# 👉 Local override config files (for your own experiments)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
