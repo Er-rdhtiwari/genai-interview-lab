@@ -34,3 +34,9 @@ variable "db_password" {
   description = "Master password for the dev Postgres instance."
   sensitive   = true
 }
+
+variable "root_domain" {
+  type        = string
+  description = "Root domain for the hosted zone (e.g. example.com)."
+  default     = "rdhcloudlab.com"
+}

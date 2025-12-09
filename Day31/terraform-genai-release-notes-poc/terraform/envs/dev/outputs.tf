@@ -25,3 +25,18 @@ output "db_username" {
   description = "Master username of the dev Postgres RDS instance."
   value       = module.rds.db_username
 }
+
+output "dns_zone_id" {
+  description = "Route 53 hosted zone ID for the root domain."
+  value       = module.dns.zone_id
+}
+
+output "dns_zone_name" {
+  description = "Route 53 hosted zone name."
+  value       = module.dns.zone_name
+}
+
+output "api_fqdn" {
+  description = "Intended FQDN for the API endpoint."
+  value       = module.dns.api_fqdn
+}
