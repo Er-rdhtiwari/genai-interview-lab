@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-service-deployment
+  namespace: d32-release-dev
+  labels:
+    app: genai-model-service
+    tier: backend
+    poc: d32-release
+    environment: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genai-model-service
+  template:
+    metadata:
+      labels:
+        app: genai-model-service
+        tier: backend
+        poc: d32-release
+        environment: dev
+    spec:
+      # Pin model-service pods to the model node group
+      nodeSelector:
+        role: model
+      containers:
+        - name: model-service
+          image: "${AWS_ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/d32-release-dev-model-service:dev"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8001
+          env:
+            - name: APP_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: d32-release-dev-app-config
+                  key: APP_ENV
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-service
+  namespace: d32-release-dev
+  labels:
+    app: genai-model-service
+    poc: d32-release
+    environment: dev
+spec:
+  selector:
+    app: genai-model-service
+  ports:
+    - name: http
+      port: 8001
+      targetPort: 8001
+  type: ClusterIP

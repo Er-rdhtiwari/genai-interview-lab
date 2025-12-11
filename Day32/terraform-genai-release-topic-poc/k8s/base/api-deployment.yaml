@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+  namespace: d32-release-dev
+  labels:
+    app: genai-api
+    tier: backend
+    poc: d32-release
+    environment: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genai-api
+  template:
+    metadata:
+      labels:
+        app: genai-api
+        tier: backend
+        poc: d32-release
+        environment: dev
+    spec:
+      # Pin API pods to the app node group
+      nodeSelector:
+        role: app
+      containers:
+        - name: api
+          image: "${AWS_ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/d32-release-dev-api:dev"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: d32-release-dev-app-config
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+  namespace: d32-release-dev
+  labels:
+    app: genai-api
+    poc: d32-release
+    environment: dev
+spec:
+  selector:
+    app: genai-api
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP

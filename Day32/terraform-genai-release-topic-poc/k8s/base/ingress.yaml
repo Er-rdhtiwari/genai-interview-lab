@@ -1,0 +1,47 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: d32-release-dev-ingress
+  namespace: d32-release-dev
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    # Listen on HTTP (80) and HTTPS (443)
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    # Use the ACM certificate created by Terraform (Part 14)
+    alb.ingress.kubernetes.io/certificate-arn: "${ACM_CERT_ARN}"
+    # Optional: group name so future Ingresses can share the same ALB
+    alb.ingress.kubernetes.io/group.name: "d32-release-dev"
+spec:
+  rules:
+    - host: d32-release-dev-api.rdhcloudlab.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-service
+                port:
+                  number: 8000
+    - host: d32-release-dev-model.rdhcloudlab.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: model-service
+                port:
+                  number: 8001
+    - host: d32-release-dev-ui.rdhcloudlab.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ui-service
+                port:
+                  number: 8501

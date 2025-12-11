@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: d32-release-dev-app-config
+  namespace: d32-release-dev
+data:
+  APP_ENV: "dev"
+  # For initial cluster testing we can run in mock mode.
+  # Later, set this to "false" and inject real API keys via Kubernetes Secret.
+  USE_MOCK_LLM: "true"
+  # Point this to the ElastiCache Redis primary endpoint (no scheme/port there).
+  # Example (after Terraform apply): d32-release-dev-redis.xyz.cache.amazonaws.com
+  REDIS_URL: "redis://${REDIS_ENDPOINT}:6379/0"

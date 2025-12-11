@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ui-deployment
+  namespace: d32-release-dev
+  labels:
+    app: genai-ui
+    tier: frontend
+    poc: d32-release
+    environment: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genai-ui
+  template:
+    metadata:
+      labels:
+        app: genai-ui
+        tier: frontend
+        poc: d32-release
+        environment: dev
+    spec:
+      # UI is part of the app plane
+      nodeSelector:
+        role: app
+      containers:
+        - name: ui
+          image: "${AWS_ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/d32-release-dev-ui:dev"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8501
+          env:
+            - name: APP_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: d32-release-dev-app-config
+                  key: APP_ENV
+            # Streamlit UI will call API inside the cluster
+            - name: API_BASE_URL
+              value: "http://api-service:8000"
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ui-service
+  namespace: d32-release-dev
+  labels:
+    app: genai-ui
+    poc: d32-release
+    environment: dev
+spec:
+  selector:
+    app: genai-ui
+  ports:
+    - name: http
+      port: 8501
+      targetPort: 8501
+  type: ClusterIP
