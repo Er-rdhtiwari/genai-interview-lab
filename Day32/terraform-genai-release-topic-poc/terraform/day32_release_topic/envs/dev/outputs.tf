@@ -26,3 +26,23 @@ output "vpc_private_subnet_ids" {
   description = "Private subnet IDs for EKS nodes, RDS, Redis, etc."
   value       = module.vpc.private_subnet_ids
 }
+
+output "vpc_cidr_block" {
+  description = "CIDR block of the d32-release-dev VPC."
+  value       = module.vpc.vpc_cidr_block
+}
+
+output "s3_docs_bucket_name" {
+  description = "Name of the S3 docs bucket."
+  value       = module.s3_docs.bucket_name
+}
+
+output "rds_endpoint" {
+  description = "RDS Postgres endpoint (hostname:port)."
+  value       = module.rds.db_endpoint
+}
+
+output "redis_endpoint" {
+  description = "Primary endpoint for Redis."
+  value       = module.redis.primary_endpoint
+}

@@ -22,3 +22,8 @@ output "private_subnet_cidrs" {
   description = "CIDRs of the private subnets."
   value       = [for s in aws_subnet.private : s.cidr_block]
 }
+
+output "vpc_cidr_block" {
+  description = "CIDR block of the VPC."
+  value       = aws_vpc.this.cidr_block
+}
