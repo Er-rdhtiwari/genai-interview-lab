@@ -2,7 +2,7 @@ provider "aws" {
   region = local.aws_region
 }
 
-# Day32 d32-release VPC: base network for EKS, RDS, Redis, ALB, etc.
+# VPC: base network
 module "vpc" {
   source = "../../modules/vpc"
 
@@ -12,7 +12,7 @@ module "vpc" {
   tags        = local.tags
 }
 
-# S3 docs bucket for release notes / artifacts
+# S3 docs bucket
 module "s3_docs" {
   source = "../../modules/s3_docs"
 
@@ -21,27 +21,25 @@ module "s3_docs" {
   tags        = local.tags
 }
 
-# RDS Postgres (dev-scale)
+# RDS Postgres
 module "rds" {
   source = "../../modules/rds"
 
-  name_prefix       = local.name_prefix
-  vpc_id            = module.vpc.vpc_id
-  vpc_cidr_block    = module.vpc.vpc_cidr_block
+  name_prefix        = local.name_prefix
+  vpc_id             = module.vpc.vpc_id
+  vpc_cidr_block     = module.vpc.vpc_cidr_block
   private_subnet_ids = module.vpc.private_subnet_ids
 
   db_name      = "genai"
   db_username  = "genai"
-  db_password  = "ChangeMe123!" # DEV-ONLY, short-lived. In prod use Secrets Manager.
-  instance_class   = "db.t3.micro"
+  db_password  = "ChangeMe123!" # DEV-ONLY
+  instance_class    = "db.t3.micro"
   allocated_storage = 20
 
   tags = local.tags
 }
 
-
-
-# Redis (ElastiCache) – non-optional cache for this PoC
+# Redis (ElastiCache)
 module "redis" {
   source = "../../modules/redis"
 
@@ -54,6 +52,39 @@ module "redis" {
   engine_version = "7.0"
 
   tags = local.tags
+}
+
+# EKS cluster with two node groups (app + model)
+module "eks" {
+  source = "../../modules/eks"
+
+  name_prefix        = local.name_prefix
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = module.vpc.private_subnet_ids
+  public_subnet_ids  = module.vpc.public_subnet_ids
+
+  cluster_version = "1.29"
+
+  node_instance_type_app   = "t3.medium"
+  node_instance_type_model = "t3.medium"
+
+  min_size_app     = 1
+  desired_size_app = 1
+  max_size_app     = 2
+
+  min_size_model     = 1
+  desired_size_model = 1
+  max_size_model     = 2
+
+  tags = local.tags
+}
+
+# ECR repositories for app, model service, and UI
+module "ecr" {
+  source = "../../modules/ecr"
+
+  name_prefix = local.name_prefix
+  tags        = local.tags
 }
 
 # This file will wire together all modules for the Day32 dev environment:
