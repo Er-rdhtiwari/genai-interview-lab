@@ -87,7 +87,8 @@ resource "aws_route_table_association" "public" {
 
 # NAT Gateway for private subnets (single NAT in first public subnet, cost-aware)
 resource "aws_eip" "nat" {
-  vpc = true
+  # "vpc = true" is deprecated; use domain = "vpc" instead
+  domain = "vpc"
 
   tags = merge(
     local.common_tags,
