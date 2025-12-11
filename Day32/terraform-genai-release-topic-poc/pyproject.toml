@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "day32-terraform-genai-release-topic-poc"
+version = "0.1.0"
+description = "Day32 GenAI Release Notes PoC (d32-release) – API, Model Service, and UI"
+requires-python = ">=3.11"
+authors = [
+  { name = "Radhe Shyam Tiwari", email = "example@example.com" }
+]
+
+dependencies = [
+  # Web / APIs
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.30.0",
+
+  # Data / config / HTTP
+  "pydantic>=1.10.0,<2.0.0",
+  "python-dotenv>=1.0.0",
+  "httpx>=0.27.0",
+  "redis>=5.0.0",
+
+  # LLM / model integration
+  "openai>=1.0.0",
+  # you can later add a client for your OSS model if needed (e.g., ollama, hf)
+
+  # UI
+  "streamlit>=1.32.0",
+
+  # Testing
+  "pytest>=8.0.0",
+  "anyio>=4.0.0"
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
