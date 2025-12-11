@@ -21,3 +21,20 @@ variable "poc_owner" {
   type        = string
   default     = "radheshyam"
 }
+variable "alb_dns_name_api" {
+  description = "ALB DNS name for the API Ingress (leave empty until ALB exists)."
+  type        = string
+  default     = ""
+}
+
+variable "alb_dns_name_model" {
+  description = "ALB DNS name for the model-service Ingress (leave empty until ALB exists)."
+  type        = string
+  default     = ""
+}
+
+variable "alb_dns_name_ui" {
+  description = "ALB DNS name for the UI Ingress (leave empty until ALB exists)."
+  type        = string
+  default     = ""
+}

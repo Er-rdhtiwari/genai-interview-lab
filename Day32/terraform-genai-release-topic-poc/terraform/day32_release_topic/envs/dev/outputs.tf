@@ -85,3 +85,16 @@ output "ecr_ui_repository_url" {
   description = "ECR URL for the UI image."
   value       = module.ecr.ui_repository_url
 }
+# Existing outputs ... (VPC, S3, RDS, Redis, EKS, ECR) ...
+
+# ACM
+output "acm_certificate_arn" {
+  description = "ARN of the validated ACM certificate used by ALB/Ingress."
+  value       = module.acm_cert.certificate_arn
+}
+
+# DNS
+output "route53_zone_id" {
+  description = "Route 53 hosted zone ID for the root domain."
+  value       = module.dns.zone_id
+}

@@ -87,6 +87,39 @@ module "ecr" {
   tags        = local.tags
 }
 
+
+# ACM certificate for API, model, and UI FQDNs (DNS-validated via Route 53)
+module "acm_cert" {
+  source = "../../modules/acm_cert"
+
+  root_domain = local.root_domain
+
+  api_fqdn   = local.api_fqdn
+  model_fqdn = local.model_fqdn
+  ui_fqdn    = local.ui_fqdn
+
+  tags = local.tags
+}
+
+# Route 53 DNS records mapping FQDNs -> ALB DNS names
+# (records are created only when alb_dns_name_* variables are non-empty)
+module "dns" {
+  source = "../../modules/dns"
+
+  root_domain = local.root_domain
+
+  api_fqdn   = local.api_fqdn
+  model_fqdn = local.model_fqdn
+  ui_fqdn    = local.ui_fqdn
+
+  alb_dns_name_api   = var.alb_dns_name_api
+  alb_dns_name_model = var.alb_dns_name_model
+  alb_dns_name_ui    = var.alb_dns_name_ui
+
+  tags = local.tags
+}
+
+
 # This file will wire together all modules for the Day32 dev environment:
 # - VPC (public/private subnets, NAT/IGW)
 # - EKS (cluster + 2 node groups: app + model)
