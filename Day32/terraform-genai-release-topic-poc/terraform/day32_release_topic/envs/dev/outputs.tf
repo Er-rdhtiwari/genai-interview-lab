@@ -11,3 +11,18 @@ output "poc_metadata" {
     ui_fqdn     = local.ui_fqdn
   }
 }
+
+output "vpc_id" {
+  description = "ID of the d32-release-dev VPC."
+  value       = module.vpc.vpc_id
+}
+
+output "vpc_public_subnet_ids" {
+  description = "Public subnet IDs for ALB / NAT / public-facing components."
+  value       = module.vpc.public_subnet_ids
+}
+
+output "vpc_private_subnet_ids" {
+  description = "Private subnet IDs for EKS nodes, RDS, Redis, etc."
+  value       = module.vpc.private_subnet_ids
+}
