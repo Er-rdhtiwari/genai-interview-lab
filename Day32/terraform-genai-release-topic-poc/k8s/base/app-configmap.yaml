@@ -9,4 +9,4 @@ data:
   USE_MOCK_LLM: "true"
   # Set this to the Redis endpoint from Terraform, without scheme & port.
   # Example: d32-release-dev-redis.xyz.cache.amazonaws.com
-  REDIS_URL: "redis://${REDIS_ENDPOINT}:6379/0"
+  REDIS_URL: "redis://${REDIS_ENDPOINT}/0"
