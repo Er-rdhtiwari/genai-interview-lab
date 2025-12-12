@@ -7,13 +7,11 @@ metadata:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    # Listen on HTTP (80) and HTTPS (443)
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    # Use the ACM certificate created by Terraform (Part 14)
     alb.ingress.kubernetes.io/certificate-arn: "${ACM_CERT_ARN}"
-    # Optional: group name so future Ingresses can share the same ALB
     alb.ingress.kubernetes.io/group.name: "d32-release-dev"
 spec:
+  ingressClassName: alb
   rules:
     - host: d32-release-dev-api.rdhcloudlab.com
       http:
