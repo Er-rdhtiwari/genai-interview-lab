@@ -126,11 +126,19 @@ class ReleaseNotesService:
         """
         cache_key = self._build_cache_key(request)
         cached = self._cache.get_json(cache_key)
+        provider_override = provider is not None
 
         if cached is not None:
-            logger.info("ReleaseNotesService cache HIT. key=%s", cache_key)
-            cached["cached"] = True  # ensure the flag is set
-            return ReleaseNoteResponse(**cached)
+            # Skip cached mock responses when caller explicitly requested a provider
+            if provider_override and str(cached.get("provider", "")).startswith("mock"):
+                logger.info(
+                    "ReleaseNotesService cache bypass (mock cached but provider override requested). key=%s",
+                    cache_key,
+                )
+            else:
+                logger.info("ReleaseNotesService cache HIT. key=%s", cache_key)
+                cached["cached"] = True  # ensure the flag is set
+                return ReleaseNoteResponse(**cached)
 
         logger.info("ReleaseNotesService cache MISS. key=%s", cache_key)
 
@@ -147,8 +155,9 @@ class ReleaseNotesService:
             cached=False,
         )
 
-        # Store in Redis cache (best-effort)
-        self._cache.set_json(cache_key, response.dict(), self._cache_ttl_seconds)
+        # Store in Redis cache (best-effort). Avoid caching mock responses so real provider calls are not masked.
+        if not response.provider.startswith("mock"):
+            self._cache.set_json(cache_key, response.dict(), self._cache_ttl_seconds)
 
         return response
 
@@ -294,10 +303,17 @@ class GreetingService:
         )
 
         cached = self._cache.get_json(cache_key)
+        provider_override = request.provider is not None
         if cached is not None:
-            logger.info("GreetingService cache HIT. key=%s", cache_key)
-            cached["cached"] = True  # mark cache hits explicitly
-            return GreetingResponse(**cached)
+            if provider_override and str(cached.get("provider", "")).startswith("mock"):
+                logger.info(
+                    "GreetingService cache bypass (mock cached but provider override requested). key=%s",
+                    cache_key,
+                )
+            else:
+                logger.info("GreetingService cache HIT. key=%s", cache_key)
+                cached["cached"] = True  # mark cache hits explicitly
+                return GreetingResponse(**cached)
 
         logger.info("GreetingService cache MISS. key=%s", cache_key)
 
@@ -329,8 +345,9 @@ class GreetingService:
             cached=False,
         )
 
-        # Store in Redis cache (best-effort)
-        self._cache.set_json(cache_key, response.dict(), self._cache_ttl_seconds)
+        # Store in Redis cache (best-effort). Do not cache mock responses so they do not mask real provider calls later.
+        if not response.provider.startswith("mock"):
+            self._cache.set_json(cache_key, response.dict(), self._cache_ttl_seconds)
 
         return response
 
