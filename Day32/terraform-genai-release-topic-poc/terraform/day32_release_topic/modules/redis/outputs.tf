@@ -1,6 +1,6 @@
 output "primary_endpoint" {
   description = "Primary endpoint for the Redis cluster."
-  value       = aws_elasticache_cluster.this.configuration_endpoint
+  value       = "${aws_elasticache_cluster.this.cache_nodes[0].address}:${aws_elasticache_cluster.this.cache_nodes[0].port}"
 }
 
 output "port" {
