@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: d32-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "no"]
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: d32-api
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    environment:
+      # Force local mode and Redis inside compose network
+      APP_ENV: "local"
+      USE_MOCK_LLM: "true"           # so no real OpenAI key needed initially
+      REDIS_URL: "redis://redis:6379/0"
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  model-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.model
+    container_name: d32-model-service
+    env_file:
+      - .env
+    environment:
+      APP_ENV: "local"
+      # later you can add MODEL_PROVIDER=oss or similar if your code supports it
+    ports:
+      - "8001:8001"
+    restart: unless-stopped
+
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    container_name: d32-ui
+    depends_on:
+      - api
+    environment:
+      APP_ENV: "local"
+      API_BASE_URL: "http://api:8000"
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
+
+networks:
+  default:
+    name: d32-net

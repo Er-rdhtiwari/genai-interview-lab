@@ -39,3 +39,8 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: live LLM integration tests (require RUN_LLM_INTEGRATION=1)",
+]

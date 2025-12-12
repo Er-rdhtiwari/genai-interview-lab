@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     olama_api_key: Optional[str] = Field(default=None, env="OLAMA_API_KEY")
     hf_token: Optional[str] = Field(default=None, env="HF_TOKEN")
     grok_model: Optional[str] = Field(default=None, env="GROK_MODEL")
+    openai_model: str = Field(
+        default="gpt-4o-mini",
+        env="OPENAI_MODEL",
+        description="Model to use for OpenAI chat completions.",
+    )
 
     # --- App runtime ---
     app_env: str = Field(default="local", env="APP_ENV")

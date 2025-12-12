@@ -296,6 +296,7 @@ class GreetingService:
         cached = self._cache.get_json(cache_key)
         if cached is not None:
             logger.info("GreetingService cache HIT. key=%s", cache_key)
+            cached["cached"] = True  # mark cache hits explicitly
             return GreetingResponse(**cached)
 
         logger.info("GreetingService cache MISS. key=%s", cache_key)
@@ -325,6 +326,7 @@ class GreetingService:
             is_birthday_month=is_birthday_month,
             provider=llm_result.provider,
             model=llm_result.model,
+            cached=False,
         )
 
         # Store in Redis cache (best-effort)

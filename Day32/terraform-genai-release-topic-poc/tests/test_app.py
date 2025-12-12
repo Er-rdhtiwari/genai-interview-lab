@@ -4,6 +4,7 @@ from datetime import date
 from fastapi.testclient import TestClient
 
 from app.main import app
+import core.llm_client as llm_client_module
 
 
 client = TestClient(app)
@@ -83,3 +84,50 @@ def test_generate_greeting_birthday_month_flag():
 
     # Since we used a DOB with the current month, flag must be True
     assert body["is_birthday_month"] is True
+
+
+def test_release_notes_oss_provider(monkeypatch):
+    """
+    OSS provider path should call the model service client (mocked) and return its model name.
+    """
+    from app import main as api_main
+
+    # Disable mock mode so the OSS path is exercised
+    monkeypatch.setattr(api_main.settings, "use_mock_llm", False, raising=False)
+    monkeypatch.setattr(api_main.llm_client._settings, "use_mock_llm", False, raising=False)
+    monkeypatch.setattr(api_main.redis_cache, "get_json", lambda key: None, raising=False)
+    monkeypatch.setattr(api_main.redis_cache, "set_json", lambda key, value, ttl: None, raising=False)
+
+    def fake_post(url, json, timeout):
+        class Resp:
+            def raise_for_status(self):
+                return None
+
+            def json(self):
+                return {
+                    "text": "Release note generated line\n- scenario A\n- scenario B",
+                    "model": "oss-test-model",
+                }
+
+        return Resp()
+
+    monkeypatch.setattr(llm_client_module.httpx, "post", fake_post)
+
+    payload = {
+        "title": "Improve login error messages",
+        "description": "Clarified login errors for wrong password vs locked account.",
+        "risk_level": "low",
+        "impact_area": "authentication",
+    }
+
+    response = client.post(
+        "/api/v1/release-notes/generate",
+        params={"provider": "oss"},
+        json=payload,
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["provider"] == "oss"
+    assert body["model"] == "oss-test-model"
+    assert body["cached"] is False

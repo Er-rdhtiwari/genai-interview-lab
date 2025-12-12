@@ -29,15 +29,14 @@ class LLMClient:
 
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
-        self._openai = None
+        self._openai_client = None
 
-        # Best-effort OpenAI initialization
+        # Best-effort OpenAI initialization (chat completions, API v1/v2 compatible)
         if settings.openai_api_key:
             try:
-                import openai
+                from openai import OpenAI
 
-                openai.api_key = settings.openai_api_key
-                self._openai = openai
+                self._openai_client = OpenAI(api_key=settings.openai_api_key)
                 logger.info("LLMClient initialized with OpenAI backend.")
             except Exception as exc:  # pragma: no cover - env specific
                 logger.warning("Failed to initialize OpenAI client: %s", exc)
@@ -65,8 +64,10 @@ class LLMClient:
         This method is synchronous and safe to call from normal FastAPI endpoints.
         """
         provider_str = self._resolve_provider(provider)
+        explicit_provider = provider is not None
 
-        if self._settings.use_mock_llm:
+        # Respect global mock flag only when no explicit provider override was chosen.
+        if self._settings.use_mock_llm and not explicit_provider:
             logger.info("LLMClient in mock mode. provider=%s", provider_str)
             return self._mock_response(prompt, provider_str, model="mock")
 
@@ -133,28 +134,32 @@ class LLMClient:
 
     def _call_openai(self, prompt: str) -> LLMGenerationResult:
         """
-        Call OpenAI's text completion API.
-
-        Note:
-        - This uses the classic Completion API so it works even with older code.
-        - In modern setups you might prefer the ChatCompletion or client.chat.completions.
+        Call OpenAI's chat completion API (works with SDK v1/v2).
         """
-        if self._openai is None:
+        if self._openai_client is None:
             logger.warning("OpenAI backend requested but not initialized; using mock.")
             return self._mock_response(prompt, "openai", model=None)
 
-        # Simple, robust call pattern
-        response = self._openai.Completion.create(
-            model="gpt-3.5-turbo-instruct",
-            prompt=prompt,
-            max_tokens=256,
+        model_name = self._settings.openai_model or "gpt-4o-mini"
+        response = self._openai_client.chat.completions.create(
+            model=model_name,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a concise assistant that writes release notes and greetings."
+                    ),
+                },
+                {"role": "user", "content": prompt},
+            ],
+            max_tokens=400,
             temperature=0.4,
         )
-        text = response.choices[0].text.strip()
+        text = response.choices[0].message.content.strip()
         return LLMGenerationResult(
             text=text,
             provider="openai",
-            model="gpt-3.5-turbo-instruct",
+            model=model_name,
         )
 
     def _call_oss_model_service(self, prompt: str) -> LLMGenerationResult:

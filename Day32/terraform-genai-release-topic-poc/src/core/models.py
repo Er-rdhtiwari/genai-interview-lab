@@ -144,6 +144,10 @@ class GreetingResponse(BaseModel):
         default=None,
         description="Model identifier if known (e.g., 'gpt-3.5-turbo', 'tiny-oss-model').",
     )
+    cached: bool = Field(
+        default=False,
+        description="True if the greeting came from cache (Redis).",
+    )
 
 
 # ------------------------

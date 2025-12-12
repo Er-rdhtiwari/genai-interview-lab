@@ -10,7 +10,7 @@ WORKDIR /app
 
 # Copy only the UI code (and optionally shared src if you reuse models)
 COPY pyproject.toml ./
-COPY ui ./ui
+COPY src/ui ./ui
 
 # Install Streamlit + HTTP client
 RUN pip install --no-cache-dir --upgrade pip && \
