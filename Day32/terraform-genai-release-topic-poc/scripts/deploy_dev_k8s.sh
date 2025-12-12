@@ -23,7 +23,7 @@ export EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)
 aws eks update-kubeconfig --name "$EKS_CLUSTER_NAME" --region ap-south-1
 
 # 4. Apply templated manifests using envsubst
-cd ../../..
+cd ../../../..
 
 # Namespace + config first
 envsubst < k8s/base/namespace.yaml     | kubectl apply -f -
