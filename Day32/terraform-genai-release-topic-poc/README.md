@@ -550,21 +550,384 @@ Once this checklist is clean → **no ongoing AWS cost** for Day32.
 
 ---
 
-## 14. How to Use This PoC in Interviews
+Tthis is exactly the right moment to do a **“no-bill, no-surprise” sanity check** ✅
 
-You can describe this as:
+Below is a **checkpoint playbook** you can literally run line-by-line to confirm that **all Day32 (`d32-release-dev`) resources are gone**.
 
-> “I designed and implemented a GenAI PoC with a FastAPI backend, a model-serving microservice, and a Streamlit UI. It runs on EKS with separate node groups for app and model workloads, uses ElastiCache Redis for caching, and maps to my own domain via ALB + ACM + Route 53. All infra is defined in Terraform, and I have a clear cost and cleanup story to avoid unnecessary AWS spend.”
+I’ll assume:
 
-That hits:
-
-* **App design**
-* **GenAI integration (OpenAI/OSS)**
-* **Kubernetes + EKS**
-* **Terraform / IaC**
-* **Networking (ALB, TLS, DNS)**
-* **Cost awareness and lifecycle management**
+* Region: `ap-south-1`
+* PoC prefix in names/tags: `d32-release` / `d32-release-dev`
 
 ---
 
+## 0. Setup
+
+On your EC2 (or wherever `aws` CLI is configured):
+
+```bash
+export AWS_REGION=ap-south-1
+export POC_PREFIX=d32-release
 ```
+
+If you’re still in the Terraform env folder, you can also quickly confirm state:
+
+```bash
+cd ~/poc/genai-interview-lab/Day32/terraform-genai-release-topic-poc/terraform/day32_release_topic/envs/dev
+
+# If destroy completed, this should show either no state or an empty list
+terraform state list
+```
+
+* If you see `No state file was found` or **no resources listed** → good sign.
+
+---
+
+## 1️⃣ Kubernetes (EKS cluster namespace)
+
+You already did:
+
+```bash
+kubectl get ns
+```
+
+Expected for **clean**:
+
+```text
+default
+kube-node-lease
+kube-public
+kube-system
+```
+
+No `d32-release-dev` namespace → ✔️ workloads removed from EKS.
+
+---
+
+## 2️⃣ EKS Cluster & Node Groups
+
+### Check clusters
+
+```bash
+aws eks list-clusters \
+  --region "$AWS_REGION" \
+  --query "clusters[]" \
+  --output text
+```
+
+* ✅ Clean if there is **no** `d32-release-dev-eks` in the output.
+
+### (Optional) Check for any leftover nodegroups
+
+If cluster is deleted, nodegroups should already be gone, but you can double-check **before** cluster deletion next time:
+
+```bash
+aws eks list-nodegroups \
+  --cluster-name d32-release-dev-eks \
+  --region "$AWS_REGION" \
+  --query "nodegroups[]" \
+  --output text || echo "Cluster not found (good)"
+```
+
+---
+
+## 3️⃣ VPC, Subnets, NAT, IGW, Security Groups
+
+If you tagged resources with `poc = d32-release`, these commands will show leftovers.
+
+### VPCs
+
+```bash
+aws ec2 describe-vpcs \
+  --region "$AWS_REGION" \
+  --filters "Name=tag:poc,Values=$POC_PREFIX" \
+  --query "Vpcs[].{VpcId:VpcId,Name:Tags[?Key=='Name']|[0].Value}" \
+  --output table
+```
+
+* ✅ Clean if output is `None` / empty table.
+
+### Subnets
+
+```bash
+aws ec2 describe-subnets \
+  --region "$AWS_REGION" \
+  --filters "Name=tag:poc,Values=$POC_PREFIX" \
+  --query "Subnets[].{SubnetId:SubnetId,Name:Tags[?Key=='Name']|[0].Value}" \
+  --output table
+```
+
+### NAT Gateways
+
+```bash
+aws ec2 describe-nat-gateways \
+  --region "$AWS_REGION" \
+  --filter "Name=tag:poc,Values=$POC_PREFIX" \
+  --query "NatGateways[].{NatGatewayId:NatGatewayId,State:State}" \
+  --output table
+```
+
+### Internet Gateways
+
+```bash
+aws ec2 describe-internet-gateways \
+  --region "$AWS_REGION" \
+  --filters "Name=tag:poc,Values=$POC_PREFIX" \
+  --query "InternetGateways[].{IgId:InternetGatewayId}" \
+  --output table
+```
+
+### Security Groups
+
+```bash
+aws ec2 describe-security-groups \
+  --region "$AWS_REGION" \
+  --filters "Name=tag:poc,Values=$POC_PREFIX" \
+  --query "SecurityGroups[].{GroupId:GroupId,GroupName:GroupName}" \
+  --output table
+```
+
+* All of the above should return **empty** → no Day32 networking infra left.
+
+---
+
+## 4️⃣ Load Balancers (ALB) & Target Groups
+
+### ALBs (ELBv2)
+
+```bash
+aws elbv2 describe-load-balancers \
+  --region "$AWS_REGION" \
+  --query "LoadBalancers[?contains(LoadBalancerName, 'd32') || contains(DNSName, 'd32-release')].{Name:LoadBalancerName,DNS:DNSName}" \
+  --output table
+```
+
+### Target Groups
+
+```bash
+aws elbv2 describe-target-groups \
+  --region "$AWS_REGION" \
+  --query "TargetGroups[?contains(TargetGroupName, 'd32')].{Name:TargetGroupName,Arn:TargetGroupArn}" \
+  --output table
+```
+
+* ✅ Clean if these tables are empty.
+
+---
+
+## 5️⃣ RDS (Postgres) + Snapshots
+
+### DB instances
+
+```bash
+aws rds describe-db-instances \
+  --region "$AWS_REGION" \
+  --query "DBInstances[?contains(DBInstanceIdentifier, 'd32-release')].DBInstanceIdentifier" \
+  --output text
+```
+
+* ✅ Clean if output is empty.
+
+### Optional: Snapshots (if final snapshot was created)
+
+```bash
+aws rds describe-db-snapshots \
+  --region "$AWS_REGION" \
+  --query "DBSnapshots[?contains(DBSnapshotIdentifier, 'd32-release')].DBSnapshotIdentifier" \
+  --output text
+```
+
+* If any remain and you don’t need them, you can delete via console or CLI.
+
+---
+
+## 6️⃣ ElastiCache (Redis)
+
+```bash
+aws elasticache describe-replication-groups \
+  --region "$AWS_REGION" \
+  --query "ReplicationGroups[?contains(ReplicationGroupId, 'd32-release')].ReplicationGroupId" \
+  --output text
+```
+
+and/or
+
+```bash
+aws elasticache describe-cache-clusters \
+  --region "$AWS_REGION" \
+  --query "CacheClusters[?contains(CacheClusterId, 'd32-release')].CacheClusterId" \
+  --output text
+```
+
+* ✅ Empty output → Redis cluster cleared.
+
+---
+
+## 7️⃣ S3 Buckets
+
+```bash
+aws s3api list-buckets \
+  --query "Buckets[?contains(Name, 'd32-release')].Name" \
+  --output text
+```
+
+* ✅ Clean if nothing listed.
+* If a bucket is still there but destroy failed because it wasn’t empty:
+
+  * Manually **empty** it in S3 console,
+  * Then re-run `terraform destroy`.
+
+---
+
+## 8️⃣ ECR Repositories
+
+You just hit the error here, so this is important.
+
+```bash
+aws ecr describe-repositories \
+  --region "$AWS_REGION" \
+  --query "repositories[?contains(repositoryName, 'd32-release')].repositoryName" \
+  --output text
+```
+
+* ✅ Clean if nothing listed.
+
+If some are left (e.g. `d32-release-dev-api`, `d32-release-dev-ui`):
+
+1. List images:
+
+   ```bash
+   aws ecr list-images \
+     --region "$AWS_REGION" \
+     --repository-name d32-release-dev-api \
+     --query 'imageIds[*]' \
+     --output table
+   ```
+
+2. Delete images with `batch-delete-image` (as in previous message) and then either:
+
+   * Remove the repo manually in console, or
+   * Re-run `terraform destroy`.
+
+---
+
+## 9️⃣ Route 53 (records for your PoC)
+
+Get hosted zone ID for `rdhcloudlab.com`:
+
+```bash
+HZ_ID=$(aws route53 list-hosted-zones-by-name \
+  --dns-name rdhcloudlab.com \
+  --query "HostedZones[0].Id" \
+  --output text | sed 's|/hostedzone/||')
+
+echo "$HZ_ID"
+```
+
+List any Day32-related records:
+
+```bash
+aws route53 list-resource-record-sets \
+  --hosted-zone-id "$HZ_ID" \
+  --query "ResourceRecordSets[?contains(Name, 'd32-release-dev')]" \
+  --output table
+```
+
+* ✅ Clean if table is empty.
+
+(You should no longer see `d32-release-dev-api.rdhcloudlab.com`, `...-model`, `...-ui`.)
+
+---
+
+## 🔟 ACM Certificates
+
+```bash
+aws acm list-certificates \
+  --region "$AWS_REGION" \
+  --query "CertificateSummaryList[?contains(DomainName, 'd32-release-dev')].{Arn:CertificateArn,Domain:DomainName}" \
+  --output table
+```
+
+* ✅ Empty → no Day32-only ACM certs hanging around.
+
+*(You might have other ACM certs for your root domain — don’t delete those unless you’re sure.)*
+
+---
+
+## 1️⃣1️⃣ Secrets Manager (if you created PoC-specific secrets)
+
+```bash
+aws secretsmanager list-secrets \
+  --region "$AWS_REGION" \
+  --query "SecretList[?contains(Name, 'd32-release')].Name" \
+  --output text
+```
+
+* ✅ Empty output → no Day32-specific secrets.
+
+---
+
+## 1️⃣2️⃣ CloudWatch Logs (optional cleanup)
+
+These are usually cheap, but you can check:
+
+```bash
+aws logs describe-log-groups \
+  --region "$AWS_REGION" \
+  --log-group-name-prefix "/aws/eks/d32-release-dev-eks" \
+  --query "logGroups[].logGroupName" \
+  --output text
+```
+
+and similar for RDS/ALB if you configured logging.
+
+If any left and you want to be super-clean:
+
+```bash
+aws logs delete-log-group \
+  --region "$AWS_REGION" \
+  --log-group-name "<LOG_GROUP_NAME>"
+```
+
+---
+
+## 1️⃣3️⃣ IAM Roles (optional, but good verification)
+
+Check for PoC-specific roles:
+
+```bash
+aws iam list-roles \
+  --query "Roles[?contains(RoleName, 'd32-release')].RoleName" \
+  --output text
+```
+
+* Things like `AmazonEKSLoadBalancerControllerRole-d32-release-dev` should be gone after destroy.
+
+If something still shows up and you know Terraform created it, either:
+
+* Run `terraform destroy` again after fixing errors, or
+* Manually delete role in IAM console if you are sure it’s no longer needed.
+
+---
+
+### ✅ Final “All Clean” Criteria
+
+You’re fully safe when:
+
+* `terraform state list` shows nothing for Day32 dev.
+* All the AWS CLI checks above return **empty** for `d32-release` / `d32-release-dev`.
+* No `d32-release-*` resources are visible in:
+
+  * **VPC**
+  * **EKS**
+  * **EC2 → Load Balancers**
+  * **RDS**
+  * **ElastiCache**
+  * **S3**
+  * **ECR**
+  * **Route 53**
+  * **ACM**
+  * **Secrets Manager**
+  * (**Optional**) CloudWatch Logs, IAM roles
+
+If you run any of these commands and see a leftover resource you’re unsure about, paste the output and I can tell you whether it’s safe to delete and how.
