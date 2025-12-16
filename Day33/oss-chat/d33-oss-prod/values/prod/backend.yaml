@@ -18,3 +18,16 @@ hpa:
   minReplicas: 2
   maxReplicas: 6
   targetCPUUtilizationPercentage: 70
+
+ingress:
+  enabled: true
+  className: alb
+  groupName: d33-oss-prod
+  scheme: internet-facing
+  targetType: ip
+  listenPorts: '[{"HTTP":80},{"HTTPS":443}]'
+  sslRedirect: "443"
+  certificateArn: "REPLACE_ME_ACM_CERT_ARN"
+  host: "api.d33-oss.rdhcloudlab.com"
+  healthcheckPath: "/readyz"
+  successCodes: "200"
