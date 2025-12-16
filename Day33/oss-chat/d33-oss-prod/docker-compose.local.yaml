@@ -1,0 +1,29 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: d33-ollama
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    volumes:
+      - ollama:/root/.ollama
+
+  backend:
+    build:
+      context: ./apps/backend
+    container_name: d33-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - LLM_PROVIDER=ollama
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3.2:3b
+      - OLLAMA_TIMEOUT_SEC=120
+      - CORS_ALLOW_ORIGINS=http://localhost:3000
+      - READINESS_CHECK_MODEL=false
+    depends_on:
+      - ollama
+
+volumes:
+  ollama:

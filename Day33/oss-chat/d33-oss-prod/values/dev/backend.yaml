@@ -6,7 +6,7 @@ env:
   APP_NAME: d33-oss-backend
   LOG_LEVEL: INFO
   PORT: "8000"
-  LLM_PROVIDER: mock
+  LLM_PROVIDER: ollama
   OLLAMA_BASE_URL: "http://d33-oss-model:11434"
   OLLAMA_MODEL: "llama3.2:3b"
   OLLAMA_TIMEOUT_SEC: "60"
