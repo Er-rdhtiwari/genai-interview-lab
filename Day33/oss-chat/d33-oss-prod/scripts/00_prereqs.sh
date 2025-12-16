@@ -21,7 +21,4 @@ echo "kube context (optional):"
 kubectl config current-context 2>/dev/null || echo "No kubeconfig context set yet."
 
 echo "OK."
-EOF
 
-chmod +x scripts/00_prereqs.sh
-./scripts/00_prereqs.sh

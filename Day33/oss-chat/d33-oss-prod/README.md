@@ -1,3 +1,4 @@
+# d33-oss-prod — Production-Grade GenAI OSS PoC (EKS + Helm)
 - Namespace: d33-oss-prod
 - Frontend: d33-oss-frontend
 - Backend: d33-oss-backend
@@ -300,9 +301,10 @@ git status
 
 ## ✅ Stop here — paste outputs
 
-Please paste:
+Check the following :
 
 1. `cd d33-oss-prod && ls -la`
 2. `find . -maxdepth 2 -type d | sort`
 
-Then we’ll go **Phase C: Backend (FastAPI) + Dockerfile (production-style)**.
+
+
