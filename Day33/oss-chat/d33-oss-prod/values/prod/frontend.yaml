@@ -1,6 +1,6 @@
-namespace: d33-oss-prod
 image:
-repository: REPLACE_ME_ECR_FRONTEND
-tag: dev
+  repository: REPLACE_ME_ECR_FRONTEND
+  tag: prod
+
 env:
-NEXT_PUBLIC_API_BASE_URL: "[https://api.d33-oss.rdhcloudlab.com](https://api.d33-oss.rdhcloudlab.com)"
+  NEXT_PUBLIC_API_BASE_URL: "https://api.d33-oss.rdhcloudlab.com"

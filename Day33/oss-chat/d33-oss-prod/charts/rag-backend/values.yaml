@@ -1,0 +1,52 @@
+replicaCount: 2
+
+image:
+  repository: REPLACE_ME_ECR_BACKEND
+  tag: dev
+  pullPolicy: IfNotPresent
+
+service:
+  port: 80
+  targetPort: 8000
+
+env:
+  APP_NAME: d33-oss-backend
+  LOG_LEVEL: INFO
+  PORT: "8000"
+
+  LLM_PROVIDER: ollama
+  OLLAMA_BASE_URL: "http://d33-oss-model:11434"
+  OLLAMA_MODEL: "llama3.2:3b"
+  OLLAMA_TIMEOUT_SEC: "60"
+
+  CORS_ALLOW_ORIGINS: "https://d33-oss.rdhcloudlab.com,http://localhost:3000"
+  READINESS_CHECK_MODEL: "false"
+
+# Optional: reference existing secret keys (created via Terraform or one-time kubectl)
+# envFromSecrets:
+#   - name: d33-oss-backend-secrets
+
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+  limits:
+    cpu: "1000m"
+    memory: "512Mi"
+
+probes:
+  readinessPath: /readyz
+  livenessPath: /healthz
+  port: 8000
+  readinessInitialDelaySeconds: 5
+  livenessInitialDelaySeconds: 15
+
+hpa:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

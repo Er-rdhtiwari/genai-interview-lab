@@ -1,0 +1,33 @@
+replicaCount: 2
+
+image:
+  repository: REPLACE_ME_ECR_FRONTEND
+  tag: dev
+  pullPolicy: IfNotPresent
+
+service:
+  port: 80
+  targetPort: 3000
+
+env:
+  # For local dev only (often baked at build time in client bundle)
+  NEXT_PUBLIC_API_BASE_URL: "https://api.d33-oss.rdhcloudlab.com"
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "256Mi"
+
+probes:
+  readinessPath: /healthz
+  livenessPath: /healthz
+  port: 3000
+  readinessInitialDelaySeconds: 5
+  livenessInitialDelaySeconds: 15
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

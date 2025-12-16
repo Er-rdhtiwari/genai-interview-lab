@@ -1,6 +1,20 @@
-namespace: d33-oss-prod
 image:
-repository: REPLACE_ME_ECR_BACKEND
-tag: dev
+  repository: REPLACE_ME_ECR_BACKEND
+  tag: prod
+
 env:
-OLLAMA_BASE_URL: "[http://d33-oss-model:11434](http://d33-oss-model:11434)"
+  APP_NAME: d33-oss-backend
+  LOG_LEVEL: INFO
+  PORT: "8000"
+  LLM_PROVIDER: ollama
+  OLLAMA_BASE_URL: "http://d33-oss-model:11434"
+  OLLAMA_MODEL: "llama3.2:3b"
+  OLLAMA_TIMEOUT_SEC: "60"
+  CORS_ALLOW_ORIGINS: "https://d33-oss.rdhcloudlab.com"
+  READINESS_CHECK_MODEL: "false"
+
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
