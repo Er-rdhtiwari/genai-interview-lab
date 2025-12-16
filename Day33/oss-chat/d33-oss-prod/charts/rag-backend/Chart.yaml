@@ -1,0 +1,6 @@
+apiVersion: v2
+name: rag-backend
+description: d33-oss-backend (FastAPI) chart
+type: application
+version: 0.1.0
+appVersion: "1.0"

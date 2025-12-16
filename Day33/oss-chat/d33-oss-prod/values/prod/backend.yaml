@@ -1,0 +1,6 @@
+namespace: d33-oss-prod
+image:
+repository: REPLACE_ME_ECR_BACKEND
+tag: dev
+env:
+OLLAMA_BASE_URL: "[http://d33-oss-model:11434](http://d33-oss-model:11434)"

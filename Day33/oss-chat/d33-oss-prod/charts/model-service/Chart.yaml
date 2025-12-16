@@ -1,0 +1,6 @@
+apiVersion: v2
+name: model-service
+description: d33-oss-model (Ollama) chart
+type: application
+version: 0.1.0
+appVersion: "1.0"

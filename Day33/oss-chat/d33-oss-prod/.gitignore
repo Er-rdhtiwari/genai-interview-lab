@@ -1,0 +1,30 @@
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+.env.*
+
+# Node
+node_modules/
+.next/
+out/
+dist/
+
+# Helm / packaging
+*.tgz
+Chart.lock
+charts/**/charts/
+
+# Local kube / logs
+.kube/
+*.log
+
+# Never commit secrets
+values/**/secrets*.yaml
+secrets*.yaml
