@@ -25,4 +25,14 @@ spec:
                 name: {{ include "rag-backend.fullname" . }}
                 port:
                   number: 80
+    - host: {{ .Values.ingress.pathHost | quote }}
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}
+                port:
+                  number: 80
 {{- end }}

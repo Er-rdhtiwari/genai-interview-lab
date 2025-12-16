@@ -21,6 +21,8 @@ hpa:
 
 ingress:
   enabled: true
+  host: "api.d33-oss.rdhcloudlab.com"
+  pathHost: "d33-oss.rdhcloudlab.com"
   className: alb
   groupName: d33-oss-prod
   scheme: internet-facing

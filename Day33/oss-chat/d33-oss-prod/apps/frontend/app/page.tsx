@@ -11,16 +11,15 @@ type ChatResp = {
 };
 
 function joinUrl(base: string, path: string) {
-  const b = base.replace(/\/+$/, "");
   const p = path.startsWith("/") ? path : `/${path}`;
+  if (!base) return p;               // <--- key
+  const b = base.replace(/\/+$/, "");
   return `${b}${p}`;
 }
 
+
 export default function Page() {
-  const apiBase = useMemo(
-    () => process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000",
-    []
-  );
+  const apiBase = useMemo(() => process.env.NEXT_PUBLIC_API_BASE_URL || "", []);
 
   const [message, setMessage] = useState("Hello 👋");
   const [loading, setLoading] = useState(false);
