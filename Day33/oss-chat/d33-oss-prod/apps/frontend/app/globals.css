@@ -1,0 +1,40 @@
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  background: #fafafa;
+}
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.card {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 14px;
+  padding: 16px;
+}
+.row { display: flex; gap: 12px; }
+input, textarea, button {
+  font: inherit;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+}
+textarea { width: 100%; min-height: 110px; resize: vertical; }
+button {
+  cursor: pointer;
+  background: black;
+  color: white;
+  border: 0;
+}
+small { color: #666; }
+pre {
+  background: #0b0b0b;
+  color: #e6e6e6;
+  padding: 12px;
+  border-radius: 12px;
+  overflow: auto;
+}
