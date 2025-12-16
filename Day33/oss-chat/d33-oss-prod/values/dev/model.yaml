@@ -1,7 +1,20 @@
-namespace: d33-oss-prod
 image:
-repository: ollama/ollama
-tag: latest
+  repository: ollama/ollama
+  tag: latest
+
 env:
-OLLAMA_HOST: "0.0.0.0:11434"
-OLLAMA_MODEL: "llama3.2:3b"
+  OLLAMA_HOST: "0.0.0.0:11434"
+  OLLAMA_MODEL: "llama3.2:3b"
+
+persistence:
+  enabled: true
+  size: 30Gi
+  storageClassName: ""  # keep empty unless your cluster needs explicit gp2/gp3
+
+resources:
+  requests:
+    cpu: "2000m"
+    memory: "4Gi"
+  limits:
+    cpu: "4000m"
+    memory: "8Gi"

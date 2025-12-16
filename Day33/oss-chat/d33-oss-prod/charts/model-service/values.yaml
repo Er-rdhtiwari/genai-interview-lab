@@ -1,0 +1,49 @@
+replicaCount: 1
+
+image:
+  repository: ollama/ollama
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  port: 11434
+
+env:
+  OLLAMA_HOST: "0.0.0.0:11434"
+  OLLAMA_MODEL: "llama3.2:3b"
+
+persistence:
+  enabled: true
+  size: 30Gi
+  storageClassName: ""   # empty = use cluster default
+  accessModes:
+    - ReadWriteOnce
+
+resources:
+  requests:
+    cpu: "2000m"
+    memory: "4Gi"
+  limits:
+    cpu: "4000m"
+    memory: "8Gi"
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+probes:
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 12
+  liveness:
+    initialDelaySeconds: 20
+    periodSeconds: 20
+    timeoutSeconds: 2
+    failureThreshold: 6
+  startup:
+    enabled: true
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 60
