@@ -12,7 +12,7 @@ type ChatResp = {
 
 function joinUrl(base: string, path: string) {
   const p = path.startsWith("/") ? path : `/${path}`;
-  if (!base) return p;               // <--- key
+  if (!base) return p;          // ✅ key line for prod
   const b = base.replace(/\/+$/, "");
   return `${b}${p}`;
 }

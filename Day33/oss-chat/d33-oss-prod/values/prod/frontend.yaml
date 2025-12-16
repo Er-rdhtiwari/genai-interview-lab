@@ -3,7 +3,8 @@ image:
   tag: prod
 
 env:
-  NEXT_PUBLIC_API_BASE_URL: "https://api.d33-oss.rdhcloudlab.com"
+  NEXT_PUBLIC_API_BASE_URL: ""
+  # NEXT_PUBLIC_API_BASE_URL: "https://api.d33-oss.rdhcloudlab.com"
 
 
 ingress:
@@ -18,3 +19,5 @@ ingress:
   host: "d33-oss.rdhcloudlab.com"
   healthcheckPath: "/healthz"
   successCodes: "200"
+  apiBackendServiceName: "d33-oss-backend"
+  apiBackendServicePort: 80
