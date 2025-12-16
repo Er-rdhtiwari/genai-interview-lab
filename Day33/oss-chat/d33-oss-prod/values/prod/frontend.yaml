@@ -14,7 +14,7 @@ ingress:
   targetType: ip
   listenPorts: '[{"HTTP":80},{"HTTPS":443}]'
   sslRedirect: "443"
-  certificateArn: "REPLACE_ME_ACM_CERT_ARN"
+  certificateArn: "arn:aws:acm:ap-south-1:253484721204:certificate/c434d193-5241-4160-a920-4329f2320b3b"
   host: "d33-oss.rdhcloudlab.com"
   healthcheckPath: "/healthz"
   successCodes: "200"
