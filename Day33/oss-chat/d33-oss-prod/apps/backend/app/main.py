@@ -57,6 +57,7 @@ async def request_logging_middleware(request: Request, call_next):
 
     try:
         response: Response = await call_next(request)
+        response.headers["x-request-id"] = request_id
         return response
     finally:
         duration_ms = int((time.time() - start) * 1000)
