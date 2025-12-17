@@ -220,7 +220,7 @@ extra-envs/
 
 # 👉 Terraform working directory (plugins, modules, etc.)
 .terraform/
-
+.terraform.tfstate.lock.info
 # 👉 Terraform state files (contain infra details + sensitive info)
 terraform.tfstate
 terraform.tfstate.*

@@ -5,8 +5,8 @@ module "eks" {
   name               = local.name
   kubernetes_version = "1.29"
 
-  endpoint_public_access                       = true
-  enable_cluster_creator_admin_permissions     = true
+  endpoint_public_access                   = true
+  enable_cluster_creator_admin_permissions = true
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
@@ -18,7 +18,7 @@ module "eks" {
       min_size       = 1
       max_size       = 3
       desired_size   = 2
-      labels = { pool = "core" }
+      labels         = { pool = "core" }
     }
 
     model = {
@@ -27,7 +27,7 @@ module "eks" {
       min_size       = 0
       max_size       = 2
       desired_size   = 1
-      labels = { pool = "model" }
+      labels         = { pool = "model" }
     }
   }
 
