@@ -9,7 +9,10 @@ module "eks" {
   enable_cluster_creator_admin_permissions = true
 
   vpc_id     = module.vpc.vpc_id
+  # before
   subnet_ids = module.vpc.private_subnets
+  # after (temporary)
+  subnet_ids = module.vpc.public_subnets
 
   eks_managed_node_groups = {
     core = {
