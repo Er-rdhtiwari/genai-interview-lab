@@ -10,7 +10,7 @@ module "eks" {
 
   vpc_id     = module.vpc.vpc_id
   # before
-  subnet_ids = module.vpc.private_subnets
+  # subnet_ids = module.vpc.private_subnets
   # after (temporary)
   subnet_ids = module.vpc.public_subnets
 
